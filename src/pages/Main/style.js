@@ -30,6 +30,11 @@ export const Form = styled.form`
     border: 1px solid #eee;
     padding: 10px 15px;
     border-radius: 4px;
+    ${(props) =>
+      props.error &&
+      css`
+        border: 2px solid #cf4647;
+      `}
     font-size: 16px;
   }
 `;

@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { FaGithubAlt, FaPlus, FaSpinner } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import Container from '../../components/Container';
+import Modal from '../../components/Modal';
 import { Form, SubmitButton, List } from './style';
+import Container from '../../components/Container';
 import api from '../../services/api';
 
 class Main extends Component {
@@ -10,6 +11,7 @@ class Main extends Component {
     newRepo: '',
     repositories: [],
     loading: false,
+    error: false,
   };
 
   componentDidMount() {
@@ -45,16 +47,17 @@ class Main extends Component {
       this.setState({
         newRepo: '',
         repositories: [...repositories, { name: response.data.full_name }],
+        error: false,
       });
     } catch (err) {
-      alert(err);
+      this.setState({ error: true });
     }
 
     this.setState({ loading: false });
   };
 
   render() {
-    const { newRepo, loading, repositories } = this.state;
+    const { newRepo, loading, repositories, error } = this.state;
 
     return (
       <Container>
@@ -63,7 +66,7 @@ class Main extends Component {
           Repositórios
         </h1>
 
-        <Form onSubmit={this.handleSubmit}>
+        <Form onSubmit={this.handleSubmit} error={error}>
           <input
             type="text"
             placeholder="Adicionar repositórios"
@@ -78,6 +81,8 @@ class Main extends Component {
               <FaPlus color="#FFF" size={14} />
             )}
           </SubmitButton>
+
+          <Modal show={error} onHide={() => this.setState({ error: false })} />
         </Form>
 
         <List>
