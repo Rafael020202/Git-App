@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import Container from '../../components/Container';
-import { Loading, Owner, IssueList } from './style';
+import { Loading, Owner, IssueList, Paging } from './style';
 import api from '../../services/api';
 
 export default class Repository extends Component {
@@ -18,9 +18,14 @@ export default class Repository extends Component {
     repository: {},
     issues: [],
     loading: true,
+    page: 0,
   };
 
-  async componentDidMount() {
+  componentDidMount() {
+    this.load();
+  }
+
+  load = async (page = 0) => {
     const { match } = this.props;
     const repoName = decodeURIComponent(match.params.repository);
     const [repository, issues] = await Promise.all([
@@ -29,6 +34,7 @@ export default class Repository extends Component {
         params: {
           state: 'open',
           per_page: 5,
+          page,
         },
       }),
     ]);
@@ -37,8 +43,23 @@ export default class Repository extends Component {
       repository: repository.data,
       issues: issues.data,
       loading: false,
+      page,
     });
-  }
+  };
+
+  handlePagination = (e) => {
+    const { name } = e.target;
+    const { page } = this.state;
+    let pageNumber;
+
+    if (name === 'prev' && page > 0) {
+      pageNumber = page - 1;
+      this.load(pageNumber);
+    } else {
+      pageNumber = page + 1;
+      this.load(pageNumber);
+    }
+  };
 
   render() {
     const { repository, loading, issues } = this.state;
@@ -77,6 +98,16 @@ export default class Repository extends Component {
                 </div>
               </li>
             ))}
+
+            <Paging>
+              <button type="button" name="prev" onClick={this.handlePagination}>
+                Prev
+              </button>
+
+              <button type="button" name="next" onClick={this.handlePagination}>
+                Next
+              </button>
+            </Paging>
           </IssueList>
         </Container>
       </>
