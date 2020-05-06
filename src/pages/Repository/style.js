@@ -113,8 +113,9 @@ export const Paging = styled.div`
     height: 30px;
     background-color: #7159c1;
     border: none;
-    border-radius: 4px;
+    border-radius: 2px;
     color: white;
+    box-shadow: 4px 10px 20px 1px rgba(0, 0, 0, 0.1);
 
     &:hover {
       opacity: 0.8;

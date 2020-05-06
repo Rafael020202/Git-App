@@ -9,6 +9,7 @@ import api from '../../services/api';
 class Main extends Component {
   state = {
     newRepo: '',
+    messageError: '',
     repositories: [],
     loading: false,
     error: false,
@@ -38,26 +39,36 @@ class Main extends Component {
     e.preventDefault();
 
     const { newRepo } = this.state;
+    const { repositories } = this.state;
+    const repository = repositories.find((repo) => repo.name === newRepo);
+
+    if (repository) {
+      this.setState({
+        error: true,
+        messageError: 'Repositorio já existente',
+        newRepo: '',
+      });
+      return;
+    }
+
     this.setState({ loading: true });
 
     try {
       const response = await api.get(`/repos/${newRepo}`);
-      const { repositories } = this.state;
-
       this.setState({
         newRepo: '',
         repositories: [...repositories, { name: response.data.full_name }],
         error: false,
       });
     } catch (err) {
-      this.setState({ error: true });
+      this.setState({ error: true, messageError: 'Repositório inexistente' });
     }
 
-    this.setState({ loading: false });
+    this.setState({ loading: false, newRepo: '' });
   };
 
   render() {
-    const { newRepo, loading, repositories, error } = this.state;
+    const { newRepo, loading, repositories, error, messageError } = this.state;
 
     return (
       <Container>
@@ -82,7 +93,11 @@ class Main extends Component {
             )}
           </SubmitButton>
 
-          <Modal show={error} onHide={() => this.setState({ error: false })} />
+          <Modal
+            show={error}
+            onHide={() => this.setState({ error: false })}
+            message={messageError}
+          />
         </Form>
 
         <List>
